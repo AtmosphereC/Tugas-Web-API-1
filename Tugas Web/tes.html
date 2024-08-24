@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digimon Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background"></div>
+    <h1>Explore Digimon</h1>
+    <div class="controls">
+        <input type="text" id="search-input" placeholder="Type Digimon name">
+        <button id="search-button">Search</button>
+        <button id="random-button">Random Digimon</button>
+    </div>
+    <div class="digimon-container" id="digimon-container">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('digimon-container');
+            const searchButton = document.getElementById('search-button');
+            const randomButton = document.getElementById('random-button');
+            const searchInput = document.getElementById('search-input');
+
+            function displayDigimon(data) {
+                container.innerHTML = ''; 
+
+                const card = document.createElement('div');
+                card.className = 'digimon-card';
+
+                const img = document.createElement('img');
+                img.src = data.img;
+                const name = document.createElement('h3');
+                name.textContent = data.name;
+
+                card.appendChild(img);
+                card.appendChild(name);
+                container.appendChild(card);
+            }
+
+            searchButton.addEventListener('click', () => {
+                const digimonName = searchInput.value.toLowerCase().trim();
+                if (digimonName) {
+                    const url = `https://digimon-api.vercel.app/api/digimon/name/${digimonName}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length) {
+                                displayDigimon(data[0]);
+                            } else {
+                                container.innerHTML = '<p>Digimon not found</p>';
+                            }
+                        })
+                        .catch(error => console.error('Fetch error:', error));
+                }
+            });
+
+            randomButton.addEventListener('click', () => {
+                fetch('https://digimon-api.vercel.app/api/digimon')
+                    .then(response => response.json())
+                    .then(digimons => {
+                        const randomIndex = Math.floor(Math.random() * digimons.length);
+                        const randomDigimon = digimons[randomIndex];
+                        displayDigimon(randomDigimon);
+                    })
+                    .catch(error => console.error('Fetch error:', error));
+            });
+        });
+    </script>
+</body>
+</html>
